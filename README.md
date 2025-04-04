@@ -1,5 +1,7 @@
 # crowd-mishkal
 
-Crowd source website for [mishkal](https://github.com/thewh1teagle/mishkal) for marking `atmaha` (`stress`) and `shva na`
+Crowd source website for [mishkal](https://github.com/thewh1teagle/mishkal) project (Hebrew G2P) 
 
-Will published soon.
+Goal: marking `atmaha` (`stress`) and `shva na`
+
+Will publish soon.
