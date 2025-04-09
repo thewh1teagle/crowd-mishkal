@@ -221,10 +221,14 @@
             loadNextLine(); // Load the next line after submitting
         }
 
-        // Function to skip the current line
+        // Function to skip the current line and remove the query parameters
         async function skipLine() {
+            const url = new URL(window.location.href);
+            url.search = ''; // Remove query parameters
+            history.replaceState(null, '', url.toString());
             location.reload()
         }
+
 
         // Keyboard shortcuts and behavior
         textarea.addEventListener("keydown", function (event) {
