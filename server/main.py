@@ -7,7 +7,19 @@ Prepare:
 Dev:
     uv run fastapi dev main.py
     http://127.0.0.1:8000/docs
+    http://64.176.165.37:8000
 
+Prod cert:
+    # Generate private key
+    openssl genpkey -algorithm RSA -out server.key
+
+    # Generate certificate signing request (CSR)
+    openssl req -new -key server.key -out server.csr
+
+    # Generate the self-signed certificate
+    openssl x509 -req -in server.csr -signkey server.key -out server.crt
+
+    uv run uvicorn main:app --host 0.0.0.0 --port 8000 --ssl-keyfile=server.key --ssl-certfile=server.crt
 Prod:
     uv run fastapi run main.py
 """
