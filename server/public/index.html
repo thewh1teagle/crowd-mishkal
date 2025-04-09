@@ -109,7 +109,9 @@
 
 <body dir="rtl">
     <h1 class="title">תיוג המונים עם Mishkal</h1>
-    <div class="stats">תויגו <span class="">0</span> מתוך <span>100,000</span></div>
+    <div class="stats">
+        תויגו <span class="tagged-count">0</span> מתוך <span class="total-count">100,000</span>
+    </div>
     <div class="editor-container">
         <textarea dir="rtl" spellcheck="false" id="editor">
 בִּשְׁנַת 1948 הִשְׁלִים אֶפְרַיִם קִישׁוֹן אֶת לִימּוּדָיו בְּפִיסּוּל מַתֶּכֶת וּבְתוֹלְדוֹת הָאׇמָּנוּת וְהֵחֵל לְפַרְסֵם מַאֲמָרִים הוּמוֹרִיסְטִיִּים</textarea>
@@ -149,18 +151,29 @@
     </div>
 
     <script>
-        const baseUrl = `http://127.0.0.1:8000`;
+        const baseUrl = `http://64.176.165.37:8000`;
         const textarea = document.getElementById("editor");
         let currentLineNumber = null;
 
+        // Function to load the stats from the server
+        async function loadStats() {
+            const res = await fetch(`${baseUrl}/stats`);
+            const stats = await res.json();
+            document.querySelector(".total-count").textContent = stats.total_lines.toLocaleString();
+            document.querySelector(".tagged-count").textContent = stats.tagged_lines.toLocaleString();
+        }
+
+        // Function to load the next line
         async function loadNextLine() {
             const res = await fetch(`${baseUrl}/next-line`);
             const data = await res.json();
             currentLineNumber = data.line_number;
             textarea.value = data.line || "";
-            textarea.focus()
+            textarea.focus();
+            loadStats(); // Update stats when new line is loaded
         }
 
+        // Function to submit tagged line
         async function submitTagged() {
             if (currentLineNumber === null) return;
             const tagged = textarea.value;
@@ -169,9 +182,10 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ line_number: currentLineNumber, tagged })
             });
-            loadNextLine();
+            loadNextLine(); // Load the next line after submitting
         }
 
+        // Function to skip the current line
         async function skipLine() {
             if (currentLineNumber === null) return;
             await fetch(`${baseUrl}/skip-line`, {
@@ -179,9 +193,10 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ line_number: currentLineNumber })
             });
-            loadNextLine();
+            loadNextLine(); // Load the next line after skipping
         }
 
+        // Keyboard shortcuts and behavior
         textarea.addEventListener("keydown", function (event) {
             let cursorPosition = textarea.selectionStart;
             let value = textarea.value;
@@ -224,12 +239,12 @@
             }
         });
 
-        // Load the first line on page load
+        // Load the first line and stats when the page loads
         window.onload = loadNextLine;
 
         document.querySelector('.download-data').addEventListener('click', () => {
             window.open(`${baseUrl}/download-tagged`, '_blank')
-        })
+        });
     </script>
 
 </body>
