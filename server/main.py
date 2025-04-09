@@ -72,13 +72,13 @@ def get_line(line_number: int):
     cursor = conn.cursor()
 
     # Get the specific line by line_number
-    cursor.execute('SELECT line_number, line FROM lines WHERE line_number = ?', (line_number,))
+    cursor.execute('SELECT line_number, line, tagged FROM lines WHERE line_number = ?', (line_number,))
     row = cursor.fetchone()
 
     conn.close()
 
     if row:
-        return {"line_number": row[0], "line": row[1]}
+        return {"line_number": row[0], "line": row[1], "tagged": row[2]}
     
     return {"line_number": None, "line": None}
 
