@@ -104,6 +104,11 @@
             gap: 3px;
             margin-bottom: 10px;
         }
+
+        .tag-instruc {
+            font-size: 12px;
+            padding: 10px;
+        }
     </style>
 </head>
 
@@ -113,9 +118,13 @@
         תויגו <span class="tagged-count">0</span> מתוך <span class="total-count">100,000</span>
     </div>
     <div class="editor-container">
-        <textarea dir="rtl" spellcheck="false" id="editor">
-בִּשְׁנַת 1948 הִשְׁלִים אֶפְרַיִם קִישׁוֹן אֶת לִימּוּדָיו בְּפִיסּוּל מַתֶּכֶת וּבְתוֹלְדוֹת הָאׇמָּנוּת וְהֵחֵל לְפַרְסֵם מַאֲמָרִים הוּמוֹרִיסְטִיִּים</textarea>
+        <textarea dir="rtl" spellcheck="false" id="editor">טוען...</textarea>
+
         <div class="instructions">
+            <span class="tag-instruc">
+                <b>הוראות:</b>
+                לסמן שווא נע, והטעמה במלעיל (לא במלרע)
+            </span>
             <div class="flex gap-3">
                 <div class="kb-instruc">
                     הטמעה
@@ -143,6 +152,8 @@
             </div>
         </div>
         <div>תודה לכל המתייגים ❤️</div>
+
+
 
         <div class="links">
             <a target="_blank" href="https://github.com/thewh1teagle/mishkal">Mishkal in Github</a>
@@ -201,8 +212,12 @@
                 event.preventDefault();
                 insertAt("\u05AB");
             } else if (event.key === "2") {
+            } else if (event.key === "2") {
                 event.preventDefault();
-                insertAt("\u05BD");
+                if (cursorPosition > 0 && value[cursorPosition - 1] === "\u05B0") {
+                    insertAt("\u05BD")
+                }
+
             } else if (event.key === "3") {
                 event.preventDefault();
                 insertAt("\u05B0");
