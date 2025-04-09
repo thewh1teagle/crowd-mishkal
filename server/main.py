@@ -20,6 +20,7 @@ Prod cert:
     openssl x509 -req -in server.csr -signkey server.key -out server.crt
 
     uv run uvicorn main:app --host 0.0.0.0 --port 8000 --ssl-keyfile=server.key --ssl-certfile=server.crt
+    https://64.176.165.37:8000
 Prod:
     uv run fastapi run main.py
 """
