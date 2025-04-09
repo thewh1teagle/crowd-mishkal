@@ -30,16 +30,43 @@ app.mount("/public", StaticFiles(directory="public"), name="public")
 def get_db():
     return sqlite3.connect("db.sqlite")
 
+@app.get("/stats")
+def get_stats():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Count the total number of lines
+    cursor.execute('SELECT COUNT(*) FROM lines')
+    total_count = cursor.fetchone()[0]
+
+    # Count the number of tagged lines
+    cursor.execute('SELECT COUNT(*) FROM lines WHERE tagged IS NOT NULL')
+    tagged_count = cursor.fetchone()[0]
+
+    conn.close()
+
+    return {"total_lines": total_count, "tagged_lines": tagged_count}
+
 @app.get("/next-line")
 def get_next_line():
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT line_number, line FROM lines WHERE tagged IS NULL AND skipped = 0 ORDER BY line_number ASC LIMIT 1')
+
+    # Get the next line that isn't tagged and hasn't been skipped
+    cursor.execute('SELECT line_number, line FROM lines WHERE being_tagged = 0 AND tagged IS NULL AND skipped = 0 ORDER BY line_number ASC LIMIT 1')
     row = cursor.fetchone()
-    conn.close()
 
     if row:
+        line_number = row[0]
+
+        # Set being_tagged to True for this line
+        cursor.execute('UPDATE lines SET being_tagged = 1 WHERE line_number = ?', (line_number,))
+        conn.commit()
+
+        conn.close()
         return {"line_number": row[0], "line": row[1]}
+
+    conn.close()
     return {"line_number": None, "line": None}
 
 class TaggedLine(BaseModel):
@@ -50,10 +77,14 @@ class TaggedLine(BaseModel):
 def submit_tagged(data: TaggedLine):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE lines SET tagged = ? WHERE line_number = ?", (data.tagged, data.line_number))
+
+    # Update the line with the tagged information
+    cursor.execute("UPDATE lines SET tagged = ?, being_tagged = 0 WHERE line_number = ?", (data.tagged, data.line_number))
     conn.commit()
     conn.close()
+
     return {"status": "ok"}
+
 
 class SkipRequest(BaseModel):
     line_number: int
@@ -62,9 +93,12 @@ class SkipRequest(BaseModel):
 def skip_line(data: SkipRequest):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE lines SET skipped = 1 WHERE line_number = ?", (data.line_number,))
+
+    # Mark the line as skipped and set being_tagged to 0
+    cursor.execute("UPDATE lines SET skipped = 1, being_tagged = 0 WHERE line_number = ?", (data.line_number,))
     conn.commit()
     conn.close()
+
     return {"status": "skipped"}
 
 
