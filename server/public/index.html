@@ -250,7 +250,7 @@
                 }
             } else if (event.key === "3") {
                 event.preventDefault();
-                insertAt("\u05B0");
+                loadLineFromQuery(currentLineNumber)
             } else if (event.key === "Enter") {
                 event.preventDefault();
                 submitTagged();
