@@ -188,13 +188,7 @@
 
         // Function to skip the current line
         async function skipLine() {
-            if (currentLineNumber === null) return;
-            await fetch(`${baseUrl}/skip-line`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ line_number: currentLineNumber })
-            });
-            loadNextLine(); // Load the next line after skipping
+            location.reload()
         }
 
         // Keyboard shortcuts and behavior
@@ -207,18 +201,7 @@
                 insertAt("\u05AB");
             } else if (event.key === "2") {
                 event.preventDefault();
-                if (cursorPosition > 0 && value[cursorPosition - 1] === "\u05B0") {
-                    value =
-                        value.slice(0, cursorPosition - 1) +
-                        value.slice(cursorPosition);
-                    cursorPosition--;
-                    textarea.value =
-                        value.slice(0, cursorPosition) +
-                        "\u05BD" +
-                        value.slice(cursorPosition);
-                    textarea.selectionStart = textarea.selectionEnd =
-                        cursorPosition + 1;
-                }
+                insertAt("\u05BD");
             } else if (event.key === "3") {
                 event.preventDefault();
                 insertAt("\u05B0");

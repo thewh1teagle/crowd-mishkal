@@ -3,6 +3,7 @@ Prepare:
     wget https://huggingface.co/datasets/thewh1teagle/hebright/resolve/main/knesset_niqqud.txt.7z
     7z x knesset_niqqud.txt.7z
     head -n 10000 knesset_niqqud.txt > 10000.txt
+    sed -i 's/|//g' 10000.txt # remove niqqud male mark
     uv run to_sqlite.py 10000.txt
 Dev:
     uv run fastapi dev main.py
@@ -103,21 +104,17 @@ def submit_tagged(data: TaggedLine):
 
     return {"status": "ok"}
 
-
-class SkipRequest(BaseModel):
-    line_number: int
-
-@app.post("/skip-line")
-def skip_line(data: SkipRequest):
+@app.post("/clear-being-tagged")
+def clear_being_tagged():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Mark the line as skipped and set being_tagged to 0
-    cursor.execute("UPDATE lines SET skipped = 1, being_tagged = 0 WHERE line_number = ?", (data.line_number,))
+    # Reset the being_tagged status for all lines
+    cursor.execute("UPDATE lines SET being_tagged = 0")
     conn.commit()
     conn.close()
 
-    return {"status": "skipped"}
+    return {"status": "ok"}
 
 
 @app.get("/download-tagged")
