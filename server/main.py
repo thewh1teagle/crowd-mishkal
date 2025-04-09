@@ -1,4 +1,9 @@
 """
+Prepare:
+    wget https://huggingface.co/datasets/thewh1teagle/hebright/resolve/main/knesset_niqqud.txt.7z
+    7z x knesset_niqqud.txt.7z
+    head -n 10000 knesset_niqqud.txt > 10000.txt
+    uv run to_sqlite.py 10000.txt
 Dev:
     uv run fastapi dev main.py
     http://127.0.0.1:8000/docs

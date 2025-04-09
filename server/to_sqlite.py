@@ -1,4 +1,5 @@
 import sqlite3
+import sys
 
 # Connect to SQLite (or create the database file if it doesn't exist)
 conn = sqlite3.connect('db.sqlite')
@@ -16,7 +17,7 @@ cursor.execute('''
 ''')
 
 # Open the file and insert each line into the database
-with open('20_000.knesset.txt', encoding='utf-8') as fp:
+with open(sys.argv[1], encoding='utf-8') as fp:
     for line_number, line in enumerate(fp):
         line = line.strip()
         cursor.execute(
