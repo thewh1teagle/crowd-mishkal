@@ -273,9 +273,6 @@
 
         window.onload = handlePageLoad;
 
-        // Listen for back/forward navigation in history
-        window.addEventListener("popstate", handlePageLoad);
-
         document.querySelector('.download-data').addEventListener('click', () => {
             window.open(`${baseUrl}/download-tagged`, '_blank')
         });
