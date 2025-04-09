@@ -66,6 +66,23 @@ def get_stats():
 
     return {"total_lines": total_count, "tagged_lines": tagged_count}
 
+@app.get("/line/{line_number}")
+def get_line(line_number: int):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Get the specific line by line_number
+    cursor.execute('SELECT line_number, line FROM lines WHERE line_number = ?', (line_number,))
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if row:
+        return {"line_number": row[0], "line": row[1]}
+    
+    return {"line_number": None, "line": None}
+
+
 @app.get("/next-line")
 def get_next_line():
     conn = get_db()
