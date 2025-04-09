@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 interface Sentence {
@@ -22,7 +20,7 @@ var data: Sentence[] = [
 function App() {
 
   const [sentence, setSentence] = useState<Sentence>()
-  const [countOf, setCountOf] = useState({ total: 10, count: 0 })
+  const [countOf, _setCountOf] = useState({ total: 10, count: 0 })
 
   useEffect(() => {
     setSentence(data[0])
@@ -38,7 +36,7 @@ function App() {
         {
           sentence && (
             <>
-              <textarea onChange={e => { }} className=' p-2.5 reseize rounded-lg mb-5 mt-10 textarea textarea-primary focus:outline-none outline-none border-gray-700 focus:border-gray-700 text-[36px] w-[80%] max-w-[800px] h-[200px] self-center' value={sentence.text} />
+              <textarea onChange={_e => { }} className=' p-2.5 reseize rounded-lg mb-5 mt-10 textarea textarea-primary focus:outline-none outline-none border-gray-700 focus:border-gray-700 text-[36px] w-[80%] max-w-[800px] h-[200px] self-center' value={sentence.text} />
               <div className='flex flex-row m-auto'>
                 <button className='btn btn-success btn-lg mb-5 bg-blue-300 text-white'>מוכן 🤗</button>
                 <button className='btn btn-ghost btn-lg mb-5'>דלג</button>
