@@ -114,8 +114,6 @@
         <textarea dir="rtl" spellcheck="false" id="editor">
 בִּשְׁנַת 1948 הִשְׁלִים אֶפְרַיִם קִישׁוֹן אֶת לִימּוּדָיו בְּפִיסּוּל מַתֶּכֶת וּבְתוֹלְדוֹת הָאׇמָּנוּת וְהֵחֵל לְפַרְסֵם מַאֲמָרִים הוּמוֹרִיסְטִיִּים</textarea>
         <div class="instructions">
-
-
             <div class="flex gap-3">
                 <div class="kb-instruc">
                     הטמעה
@@ -146,57 +144,94 @@
 
         <div class="links">
             <a target="_blank" href="https://github.com/thewh1teagle/mishkal">Mishkal in Github</a>
-            <a target="_blank" href="https://github.com/thewh1teagle/mishkal">Download data</a>
+            <a class="download-data" href="">Download data</a>
         </div>
     </div>
 
     <script>
-        document
-            .getElementById("editor")
-            .addEventListener("keydown", function (event) {
-                let textarea = event.target;
-                let cursorPosition = textarea.selectionStart;
-                let value = textarea.value;
+        const baseUrl = `http://127.0.0.1:8000`;
+        const textarea = document.getElementById("editor");
+        let currentLineNumber = null;
 
-                console.log('event.key', event.key)
+        async function loadNextLine() {
+            const res = await fetch(`${baseUrl}/next-line`);
+            const data = await res.json();
+            currentLineNumber = data.line_number;
+            textarea.value = data.line || "";
+            textarea.focus()
+        }
 
+        async function submitTagged() {
+            if (currentLineNumber === null) return;
+            const tagged = textarea.value;
+            await fetch(`${baseUrl}/submit-tagged`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ line_number: currentLineNumber, tagged })
+            });
+            loadNextLine();
+        }
 
+        async function skipLine() {
+            if (currentLineNumber === null) return;
+            await fetch(`${baseUrl}/skip-line`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ line_number: currentLineNumber })
+            });
+            loadNextLine();
+        }
 
-                if (event.key === "1") {
-                    event.preventDefault();
-                    textarea.value =
-                        value.slice(0, cursorPosition) +
-                        "\u05AB" +
+        textarea.addEventListener("keydown", function (event) {
+            let cursorPosition = textarea.selectionStart;
+            let value = textarea.value;
+
+            if (event.key === "1") {
+                event.preventDefault();
+                insertAt("\u05AB");
+            } else if (event.key === "2") {
+                event.preventDefault();
+                if (cursorPosition > 0 && value[cursorPosition - 1] === "\u05B0") {
+                    value =
+                        value.slice(0, cursorPosition - 1) +
                         value.slice(cursorPosition);
-                    textarea.selectionStart = textarea.selectionEnd =
-                        cursorPosition + 1;
-                } else if (event.key === "2") {
-                    event.preventDefault();
-                    if (cursorPosition > 0 && value[cursorPosition - 1] === "\u05B0") {
-                        // Remove shva before inserting shva na
-                        value =
-                            value.slice(0, cursorPosition - 1) +
-                            value.slice(cursorPosition);
-                        cursorPosition--;
-                        textarea.value =
-                            value.slice(0, cursorPosition) +
-                            "\u05BD" +
-                            value.slice(cursorPosition);
-                        textarea.selectionStart = textarea.selectionEnd =
-                            cursorPosition + 1;
-                    }
-
-                } else if (event.key === "3") {
-                    event.preventDefault();
+                    cursorPosition--;
                     textarea.value =
                         value.slice(0, cursorPosition) +
-                        "\u05B0" +
+                        "\u05BD" +
                         value.slice(cursorPosition);
                     textarea.selectionStart = textarea.selectionEnd =
                         cursorPosition + 1;
                 }
-            });
+            } else if (event.key === "3") {
+                event.preventDefault();
+                insertAt("\u05B0");
+            } else if (event.key === "Enter") {
+                event.preventDefault();
+                submitTagged();
+            } else if (event.key === "Escape") {
+                event.preventDefault();
+                skipLine();
+            }
+
+            function insertAt(char) {
+                textarea.value =
+                    value.slice(0, cursorPosition) +
+                    char +
+                    value.slice(cursorPosition);
+                textarea.selectionStart = textarea.selectionEnd =
+                    cursorPosition + 1;
+            }
+        });
+
+        // Load the first line on page load
+        window.onload = loadNextLine;
+
+        document.querySelector('.download-data').addEventListener('click', () => {
+            window.open(`${baseUrl}/download-tagged`, '_blank')
+        })
     </script>
+
 </body>
 
 </html>

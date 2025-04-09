@@ -32,6 +32,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v4
+      - name: Move index
+        run: cp ./server/public/index.html .
+        shell: bash
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
