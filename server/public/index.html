@@ -110,10 +110,59 @@
             font-size: 12px;
             padding: 10px;
         }
+
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .toast {
+            background: linear-gradient(135deg, #56ccf2 0%, #2f80ed 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            color: white;
+
+
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+
+            font-family: sans-serif;
+            font-size: 1rem;
+            text-align: center;
+            min-width: 200px;
+            max-width: 80vw;
+            margin: auto;
+            opacity: 1;
+            animation: fadeInOut 0.3s ease forwards, disappear 0.3s ease forwards;
+        }
+
+        @keyframes fadeInOut {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes disappear {
+            to {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+        }
     </style>
 </head>
 
 <body dir="rtl">
+    <div id="toast-container"></div>
     <h1 class="title">תיוג המונים עם Mishkal</h1>
     <div class="stats">
         תויגו <span class="tagged-count">0</span> מתוך <span class="total-count">100,000</span>
@@ -168,6 +217,8 @@
     </div>
 
     <script>
+        console.log('toast')
+
         const baseUrl = "https://mishkal-crowd.robodf.com"
         // const baseUrl = `https://64.176.165.37:8000`;
         // const baseUrl = `http://127.0.0.1:8000`;
@@ -217,7 +268,9 @@
         }
 
         // Function to submit tagged line
+
         async function submitTagged() {
+
             if (currentLineNumber === null) return;
             const tagged = textarea.value;
             await fetch(`${baseUrl}/submit-tagged`, {
@@ -225,6 +278,7 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ line_number: currentLineNumber, tagged })
             });
+            makeToast('נשמר', 600)
             loadNextLine(); // Load the next line after submitting
         }
 
@@ -253,6 +307,7 @@
             } else if (event.key === "3") {
                 event.preventDefault();
                 loadLineFromQuery(currentLineNumber)
+                makeToast('אוּפַס', 600)
             } else if (event.key === "Enter") {
                 event.preventDefault();
                 submitTagged();
@@ -287,6 +342,30 @@
         document.querySelector('.download-data').addEventListener('click', () => {
             window.open(`${baseUrl}/download-tagged`, '_blank')
         });
+
+
+        function makeToast(message, timeout = 3000) {
+            const toast = document.createElement("div");
+            toast.className = "toast";
+
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "toast-message";
+            messageDiv.textContent = message;
+
+            toast.appendChild(messageDiv);
+            document.getElementById("toast-container").appendChild(toast);
+
+            // Trigger fade-in animation
+            setTimeout(() => {
+                toast.style.animation = `disappear 0.3s ease ${timeout / 1000}s forwards`;
+            }, 10);
+
+            // Remove element after animation
+            setTimeout(() => {
+                toast.remove();
+            }, timeout + 300);
+        }
+
     </script>
 
 </body>
