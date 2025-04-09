@@ -171,6 +171,7 @@
             currentLineNumber = data.line_number;
             textarea.value = data.line || "";
             textarea.focus();
+            textarea.setSelectionRange(0, 0) // Move the cursor to the beginning
             loadStats(); // Update stats when new line is loaded
         }
 
