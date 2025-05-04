@@ -154,7 +154,7 @@ def download_tagged(request: Request):
     rows = cursor.fetchall()
     conn.close()
 
-    rows = [r for r in rows if any(i in r[2] for i in [HATAMA_DIACRITIC, SHVA_NA_DIACRITIC])]
+    rows = [list(r) for r in rows if any(i in r[2] for i in [HATAMA_DIACRITIC, SHVA_NA_DIACRITIC])]
     for r in rows:
         # Keep only ole and meteg
         r[2] = re.sub('(?!\u05bd)[\u05b0-\u05c7]', '', r[2])
