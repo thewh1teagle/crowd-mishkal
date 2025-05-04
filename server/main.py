@@ -33,6 +33,9 @@ import sqlite3
 import json
 from fastapi.middleware.cors import CORSMiddleware
 
+SHVA_NA_DIACRITIC = "\u05bd"
+HATAMA_DIACRITIC = "\u05ab"
+
 app = FastAPI()
 
 # Allow all origins
@@ -149,6 +152,8 @@ def download_tagged(request: Request):
     )
     rows = cursor.fetchall()
     conn.close()
+
+    rows = [r for r in rows if any(i in r[2] for i in [HATAMA_DIACRITIC, SHVA_NA_DIACRITIC])]
 
     if format == "txt":
         content = "\n".join(tagged for _, _, tagged in rows)
