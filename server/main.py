@@ -32,6 +32,7 @@ from pydantic import BaseModel
 import sqlite3
 import json
 from fastapi.middleware.cors import CORSMiddleware
+import re
 
 SHVA_NA_DIACRITIC = "\u05bd"
 HATAMA_DIACRITIC = "\u05ab"
@@ -154,6 +155,9 @@ def download_tagged(request: Request):
     conn.close()
 
     rows = [r for r in rows if any(i in r[2] for i in [HATAMA_DIACRITIC, SHVA_NA_DIACRITIC])]
+    for r in rows:
+        # Keep only ole and meteg
+        r[2] = re.sub('(?!\u05bd)[\u05b0-\u05c7]', '', r[2])
 
     if format == "txt":
         content = "\n".join(tagged for _, _, tagged in rows)
