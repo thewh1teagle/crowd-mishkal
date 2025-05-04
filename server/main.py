@@ -135,10 +135,11 @@ def clear_being_tagged():
 
 
 @app.get("/download-tagged")
-def download_tagged():
+def download_tagged(request: Request):
+    format = request.query_params.get("format", "json")
+
     conn = get_db()
     cursor = conn.cursor()
-
     cursor.execute(
         '''
         SELECT line_number, line, tagged FROM lines
@@ -149,17 +150,22 @@ def download_tagged():
     rows = cursor.fetchall()
     conn.close()
 
-    data = [
-        {"line_number": line_number, "line": line, "tagged": tagged}
-        for line_number, line, tagged in rows
-    ]
-
-    headers = {
-        "Content-Disposition": "attachment; filename=tagged_lines.json"
-    }
-    content = json.dumps(data, ensure_ascii=False, indent=2)
-
-    return Response(content, media_type="application/json", headers=headers)
+    if format == "txt":
+        content = "\n".join(tagged for _, _, tagged in rows)
+        headers = {
+            "Content-Disposition": "attachment; filename=tagged_lines.txt"
+        }
+        return Response(content, media_type="text/plain", headers=headers)
+    else:
+        data = [
+            {"line_number": line_number, "line": line, "tagged": tagged}
+            for line_number, line, tagged in rows
+        ]
+        content = json.dumps(data, ensure_ascii=False, indent=2)
+        headers = {
+            "Content-Disposition": "attachment; filename=tagged_lines.json"
+        }
+        return Response(content, media_type="application/json", headers=headers)
 
 
 @app.get("/view")
